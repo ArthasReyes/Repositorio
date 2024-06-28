@@ -1,14 +1,13 @@
 from machine import Pin, ADC
-from movil import Movil_2_ruedas
+from neoeduca import Movil, ADS1115
+import time
 
 #Motores
-autito = Movil_2_ruedas(motorA1_pin=1, motorA2_pin=2, motorB1_pin=4, motorB2_pin=5)
-
-
+autito = Movil(1,2,4,5)
+ads = ADS1115(sda_pin=14, scl_pin=15)
 #sensores QTI
-qti_pines = [34, 35, 32, 33]  # Pines de los sensores IR
+qti_pines = [0, 1, 2, 3]  # Pines de los sensores QTI en el I2C
 umbrales = [2000, 2000, 2000, 2000] #calibrar
-sensores = [ADC(Pin(pin)) for pin in sensores_pines]
 
 # Casos posibles: 0 blanco, 1 negro
 acciones = {
@@ -17,15 +16,16 @@ acciones = {
     (1, 1, 0, 0): autito.izquierda,
     (0, 0, 1, 0): autito.derecha,
     (0, 0, 1, 1): autito.derecha,
+    (1, 0, 1, 1): autito.avanzar,
 }
 
-
 while True:
-    sensores_valores = [sensor.read() for sensor in sensores]
+
+    sensores_valores = [ads.leer(0,pin) for pin in qti_pines]
 
     detecciones = tuple(int(valor > umbral) for valor, umbral in zip(sensores_valores, umbrales))
+    print(detecciones)
+    accion = acciones.get(detecciones, autito.detener)
 
-    accion = acciones.get(detecciones, detener)
     accion()
-
     time.sleep(0.1)

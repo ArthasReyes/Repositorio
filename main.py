@@ -1,16 +1,12 @@
-# Programa principal
-from machine import Pin, ADC
-import time
-from movil import Movil_2_ruedas
+from neoeduca import Movil, ADS1115
 
-autito = Movil_2_ruedas(0, 1, 4, 5)
-autito.calibrar(15, 16)
+ads = ADS1115(sda_pin=14, scl_pin=15)
 
-try:
-    while True:
-        vel = input(" que velocidad quiere?")
-        autito._velocidad = int(vel)
-        autito.avanzar()
+
+while True:
+    A0 = ads.read(0, 0)
+    A1 = ads.read(0, 1)
+    A2 = ads.read(0, 2)
+    A3 = ads.read(0, 3)
+    print(A0, A1, A2, A3)
     
-except:
-    autito.detener()
